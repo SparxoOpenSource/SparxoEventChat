@@ -1,58 +1,50 @@
 import React, { Component, PropTypes } from 'react';
-import { View, Text, Button, Image, WebView, Animated, Easing } from 'react-native';
+import { View, Text, Button, TouchableHighlight, Image, WebView, Animated, Easing, Dimensions } from 'react-native';
 
 export default class EventCard extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            rotateValue: new Animated.Value(0)
+            animationValue: new Animated.Value(0)
         };
     }
     startAnimation() {
-        Animated.sequence([
-            Animated.timing(this.state.rotateValue, {
-                toValue: 1,
-                duration: 400,
-                easing: Easing.linear
-            }),
-            Animated.timing(this.state.rotateValue, {
-                toValue: 0,
-                duration: 800,
-                easing: Easing.linear
-            })
-        ]).start(() => this.startAnimation());
+        Animated.timing(this.state.animationValue, {
+            toValue: 1,
+            duration: 300,
+            easing: Easing.linear
+        }).start();
     }
     render() {
+        const windowWidth = Dimensions.get('window').width;
+        const getImageHeight = width => width / 784 * 295;
+        const getImageWidth = height => height * 784 / 295;
         return (
             <Animated.View style={{
                 flex: 1,
-                flexDirection: 'column',
                 justifyContent: 'flex-start',
-                alignItems: 'center',
-                marginLeft: 30,
-                marginRight: 30,
-                transform: [{
-                    rotateZ: this.state.rotateValue.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] })
-                }]
+                marginLeft: this.state.animationValue.interpolate({ inputRange: [0, 1], outputRange: [windowWidth * 0.08, 0] }),
+                marginRight: this.state.animationValue.interpolate({ inputRange: [0, 1], outputRange: [windowWidth * 0.08, 0] })
             }}>
-                <View>
-                    <Button title='detail' onPress={() => this.startAnimation()} />
-                </View>
-                <View>
-                    <Image style={{ height: 140, width: 315 }}
-                        source={{ uri: this.props.imageUrl }} />
-                </View>
-                <View>
-                    <Text style={{ fontSize: 30 }}>
+                <TouchableHighlight style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }} onPress={() => this.startAnimation()}>
+                    <Text>Detail</Text>
+                </TouchableHighlight>
+                <Animated.Image style={{
+                    height: this.state.animationValue.interpolate({ inputRange: [0, 1], outputRange: [getImageHeight(windowWidth * 0.92), getImageHeight(windowWidth)] })
+                }}
+                    source={{ uri: this.props.imageUrl }}
+                    resizeMode='cover'
+                    />
+                <View start={{ flex: 1 }}>
+                    <Text style={{ textAlign: 'center', fontSize: 30 }}>
                         {this.props.name}
                     </Text>
                 </View>
-                <View>
-                    <WebView style={{ width: 315 }}
-                        source={{ html: this.props.description, baseUrl: "http://www.baidu.com" }}
-                        scrollEnabled={true}
-                        javaScriptEnabled={false} />
-                </View>
+                <WebView style={{ }}
+                    source={{ html: this.props.description }}
+                    scrollEnabled={true}
+                    javaScriptEnabled={false}
+                    />
             </Animated.View>
         );
     }
